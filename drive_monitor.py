@@ -9,9 +9,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 SCOPES = ["https://www.googleapis.com/auth/drive.metadata.readonly",
-          "https://www.googleapis.com/auth/drive.activity.readonly",
-          "https://www.googleapis.com/auth/drive",
-          "https://www.googleapis.com/auth/drive.file"]
+          "https://www.googleapis.com/auth/drive.activity.readonly"]
 
 CREATE = "create"
 ANYONE_WITH_LINK = "anyoneWithLink"
@@ -21,13 +19,9 @@ TYPE = "type"
 USER = "user"
 GROUP = "group"
 ROLE = "role"
-ONE_DAY = 86400
 
 
 def main():
-    """Shows basic usage of the Drive v3 API.
-    Prints the names and ids of the first 10 files the user has access to.
-    """
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -57,12 +51,12 @@ def main():
 def monitor_file_creation_for_the_day_before(service_v3, service_v2):
     try:
         milliseconds = get_milliseconds_for_yesterday()
-        results_activity = service_v2.activity().query(body={"pageSize": 10,
-                                                             "filter": "time > {0}".format(milliseconds)}).execute()
+        results_activity = service_v2.activity().query(body={"filter": "time > {0}".format(milliseconds-5)}).execute()
         activities = results_activity.get("activities", [])
 
         dict_of_create_files = get_all_create_file_activities(activities)
-        remove_public_permissions_and_print_sharing_status(dict_of_create_files, service_v3)
+        if dict_of_create_files:
+            remove_public_permissions_and_print_sharing_status(dict_of_create_files, service_v3)
 
     except HttpError as error:
         print(f"An error occurred: {error}")
@@ -76,7 +70,6 @@ def get_milliseconds_for_yesterday():
 
 def get_all_create_file_activities(activities):
     dict_of_create_activities = {}
-
     if not activities:
         return None
     else:
@@ -101,15 +94,15 @@ def remove_public_permissions_and_print_sharing_status(dict_of_create_files, ser
 
         for permission in permissions:
             if permission[TYPE] == USER:
-                print("    - Has user access for user id {0}, with {1} role\n".
+                print("    - Has user access for user id {0}, with {1} role".
                       format(permission[ID], permission[ROLE]))
 
             elif permission[TYPE] == GROUP:
-                print("    - Has group access for group id {0}, with {1} role\n".
+                print("    - Has group access for group id {0}, with {1} role".
                       format(permission[ID], permission[ROLE]))
 
             elif permission[TYPE] == DOMAIN:
-                print("    - Has domain access for domain {0}, with {1} role\n".
+                print("    - Has domain access for domain {0}, with {1} role".
                       format(permission[DOMAIN], permission[ROLE]))
 
             elif permission[ID] == ANYONE_WITH_LINK:
@@ -117,7 +110,7 @@ def remove_public_permissions_and_print_sharing_status(dict_of_create_files, ser
                     service_v3.permissions().delete(fileId=file_id, permissionId="anyoneWithLink").execute()
                     print("    - Had Public access, removed by the program")
                 else:
-                    print("ERROR: file can't have only public permission")
+                    print("ERROR: This file only have public permission")
     print("\n")
 
 
@@ -146,5 +139,5 @@ def get_file_id(target):
 
 if __name__ == "__main__":
     scheduler = BlockingScheduler()
-    scheduler.add_job(main, 'cron', hour='12', minute='00')
+    scheduler.add_job(main, 'cron', hour='12', minute='58')
     scheduler.start()
