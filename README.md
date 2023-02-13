@@ -30,10 +30,8 @@ File creation summary for the past day
 
 readme - sharing status:
     - Has user access for user id 07010884606913906718, with owner role
-
 fmd - sharing status:
     - Has user access for user id 07010884606913906718, with owner role
-
 shared_with_uri - sharing status:
     - Has user access for user id 10758064074363540534, with writer role
     - Has user access for user id 07010884606913906718, with owner role
@@ -45,11 +43,9 @@ File creation summary for the past day
 new_file_public - sharing status:
     - Had Public access, removed by the program
     - Has user access for user id 07010884606913906718, with owner role
-
 readme - sharing status:
     - Had Public access, removed by the program
     - Has user access for user id 07010884606913906718, with owner role
-
 fmd - sharing status:
     - Had Public access, removed by the program
     - Has user access for user id 07010884606913906718, with owner role
